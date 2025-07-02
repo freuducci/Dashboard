@@ -1,0 +1,1450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Haitian Hub Studio - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bauhaus+93&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-red: #BF2026;
+            --primary-orange: #F07522;
+        }
+        
+        body {
+            font-family: 'Poppins', sans-serif;
+            transition: background-color 0.3s ease;
+        }
+        
+        .bg-primary-red {
+            background-color: var(--primary-red);
+        }
+        
+        .bg-primary-orange {
+            background-color: var(--primary-orange);
+        }
+        
+        .text-primary-red {
+            color: var(--primary-red);
+        }
+        
+        .text-primary-orange {
+            color: var(--primary-orange);
+        }
+        
+        .border-primary-red {
+            border-color: var(--primary-red);
+        }
+        
+        .border-primary-orange {
+            border-color: var(--primary-orange);
+        }
+        
+        .hover\:bg-primary-red:hover {
+            background-color: var(--primary-red);
+        }
+        
+        .hover\:bg-primary-orange:hover {
+            background-color: var(--primary-orange);
+        }
+        
+        .dark .dark\:bg-dark {
+            background-color: #1a202c;
+        }
+        
+        .dark .dark\:bg-darker {
+            background-color: #0f172a;
+        }
+        
+        .dark .dark\:text-light {
+            color: #f8fafc;
+        }
+        
+        .dark .dark\:border-light {
+            border-color: #f8fafc;
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .card-hover {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        }
+
+        .suggestion-item {
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+
+        .suggestion-item:hover {
+            background-color: #f3f4f6;
+        }
+
+        .dark .suggestion-item:hover {
+            background-color: #374151;
+        }
+        
+        .sidebar {
+            transition: all 0.3s ease;
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                z-index: 50;
+                height: 100vh;
+            }
+            
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            
+            .overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 40;
+                display: none;
+            }
+            
+            .overlay.open {
+                display: block;
+            }
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-darker">
+    <!-- Overlay for mobile sidebar -->
+    <div class="overlay"></div>
+    
+    <!-- Sidebar -->
+    <div class="sidebar bg-white dark:bg-dark w-64 fixed md:relative h-screen flex flex-col border-r border-gray-200 dark:border-gray-700">
+        <!-- Logo -->
+        <div class="p-4 flex items-center justify-start pl-6">
+            <div class="text-3xl font-bold text-primary-red" style="font-family: 'Poppins', sans-serif;">HAITIAN HUB STUDIO</div>
+        </div>
+        
+        <!-- Navigation -->
+        <nav class="flex-1 px-6 py-2">
+            <div class="space-y-2">
+                <a href="#" class="flex items-center px-4 py-3 rounded-lg bg-primary-red text-white transition-all duration-300">
+                    <i class="fas fa-tachometer-alt mr-3"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#visitors" class="flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300">
+                    <i class="fas fa-users mr-3"></i>
+                    <span>Visitors</span>
+                </a>
+                <a href="#logins" class="flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300">
+                    <i class="fas fa-sign-in-alt mr-3"></i>
+                    <span>Login Activity</span>
+                </a>
+                <a href="#messages" class="flex items-center px-4 py-3 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all duration-300">
+                    <i class="fas fa-envelope mr-3"></i>
+                    <span>Messaging</span>
+                </a>
+            </div>
+        </nav>
+        
+        <!-- User & Settings -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    <div class="w-10 h-10 rounded-full bg-primary-orange flex items-center justify-center text-white">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <div class="ml-3">
+                        <div class="text-sm font-medium dark:text-light" id="loggedInUser">Admin</div>
+                        <div class="text-xs text-gray-500 dark:text-gray-400">Administrator</div>
+                    </div>
+                </div>
+                <button id="logoutBtn" class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-all duration-300">
+                    <i class="fas fa-sign-out-alt text-gray-600 dark:text-gray-300"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Dark Mode Toggle -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between">
+                <span class="text-sm text-gray-600 dark:text-gray-300">Dark Mode</span>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="darkModeToggle" class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-orange dark:peer-focus:ring-primary-red rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-red"></div>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Main Content -->
+    <div class="md:ml-64">
+        <!-- Mobile Header -->
+        <header class="bg-white dark:bg-dark shadow-sm md:hidden">
+            <div class="flex items-center justify-between p-4">
+                <button id="mobileMenuBtn" class="p-2 rounded-md text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="text-xl font-bold text-primary-red" style="font-family: 'Poppins', sans-serif;">HAITIAN HUB STUDIO</div>
+                <div class="w-8"></div> <!-- Spacer for balance -->
+            </div>
+        </header>
+        
+        <!-- Dashboard Content -->
+        <main class="p-6">
+            <!-- Dashboard Overview -->
+            <section id="dashboard">
+                <h1 class="text-3xl font-bold mb-6 dark:text-light" style="font-family: 'Poppins', sans-serif;">Dashboard Overview</h1>
+                
+                <!-- Stats Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Visitors</p>
+                                <h3 class="text-2xl font-bold dark:text-light" id="totalVisitors">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-primary-red bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-users text-primary-red text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-primary-red rounded-full" style="width: 75%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Visitors This Week</p>
+                                <h3 class="text-2xl font-bold dark:text-light" id="weeklyVisitors">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-primary-orange bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-calendar-week text-primary-orange text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-primary-orange rounded-full" style="width: 45%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Logins Today</p>
+                                <h3 class="text-2xl font-bold dark:text-light" id="todayLogins">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-sign-in-alt text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-green-500 rounded-full" style="width: 30%"></div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6 card-hover">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Active Users</p>
+                                <h3 class="text-2xl font-bold dark:text-light" id="activeUsers">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-blue-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-user-check text-blue-500 text-xl"></i>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="h-2 bg-gray-200 rounded-full">
+                                <div class="h-2 bg-blue-500 rounded-full" style="width: 60%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Visitors -->
+                <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6 mb-8">
+                    <div class="flex items-center justify-between mb-6">
+                        <h2 class="text-xl font-bold dark:text-light">Recent Visitors</h2>
+                        <a href="#visitors" class="text-sm text-primary-orange hover:underline">View All</a>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Service</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Visit Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700" id="recentVisitorsTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Visitors Management -->
+            <section id="visitors" class="mt-12">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-3xl font-bold dark:text-light title-font">Visitors Management</h1>
+                    <button id="addVisitorBtn" class="bg-primary-orange hover:bg-primary-red text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center">
+                        <i class="fas fa-plus mr-2"></i> Add Visitor
+                    </button>
+                </div>
+                
+                <!-- Filters -->
+                <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6 mb-6">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Search</label>
+                            <input type="text" id="visitorSearch" placeholder="Search visitors..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Service</label>
+                            <select id="serviceFilter" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                                <option value="">All Services</option>
+                                <option value="Photography">Photography</option>
+                                <option value="Videography">Videography</option>
+                                <option value="Podcast">Podcast</option>
+                                <option value="Studio Rental">Studio Rental</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Filter by Date</label>
+                            <input type="date" id="dateFilter" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Visitors Table -->
+                <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Name</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Phone</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Service</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Visit Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700" id="visitorsTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Showing <span id="visitorStart">1</span> to <span id="visitorEnd">10</span> of <span id="visitorTotal">0</span> entries
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="visitorPrevBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-50" disabled>Previous</button>
+                            <button id="visitorNextBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-50" disabled>Next</button>
+                        </div>
+                    </div>
+                    
+                    <!-- Export Buttons -->
+                    <div class="mt-4 flex justify-end space-x-2">
+                        <button id="exportCSVBtn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center">
+                            <i class="fas fa-file-csv mr-2"></i> Export CSV
+                        </button>
+                        <button id="exportJSONBtn" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-all duration-300 flex items-center">
+                            <i class="fas fa-file-code mr-2"></i> Export JSON
+                        </button>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Login Tracking -->
+            <section id="logins" class="mt-12">
+                <h1 class="text-3xl font-bold mb-6 dark:text-light title-font">Login Activity</h1>
+                
+                <!-- Login Stats -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Total Logins</p>
+                                <h3 class="text-2xl font-bold dark:text-light" id="totalLogins">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-purple-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-sign-in-alt text-purple-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Active Sessions</p>
+                                <h3 class="text-2xl font-bold dark:text-light" id="activeSessions">0</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-green-500 bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-user-clock text-green-500 text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <p class="text-gray-500 dark:text-gray-400 text-sm">Last Login</p>
+                                <h3 class="text-2xl font-bold dark:text-light" id="lastLogin">-</h3>
+                            </div>
+                            <div class="w-12 h-12 rounded-full bg-primary-orange bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-history text-primary-orange text-xl"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Login Table -->
+                <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6">
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                            <thead class="bg-gray-50 dark:bg-gray-800">
+                                <tr>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Email</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Login Date</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Login Time</th>
+                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody class="bg-white dark:bg-dark divide-y divide-gray-200 dark:divide-gray-700" id="loginTable">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Pagination -->
+                    <div class="flex items-center justify-between mt-4">
+                        <div class="text-sm text-gray-500 dark:text-gray-400">
+                            Showing <span id="loginStart">1</span> to <span id="loginEnd">10</span> of <span id="loginTotal">0</span> entries
+                        </div>
+                        <div class="flex space-x-2">
+                            <button id="loginPrevBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-50" disabled>Previous</button>
+                            <button id="loginNextBtn" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 disabled:opacity-50" disabled>Next</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Messaging Center -->
+            <section id="messages" class="mt-12">
+                <h1 class="text-3xl font-bold mb-6 dark:text-light title-font">Messaging Center</h1>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Message Form -->
+                    <div class="lg:col-span-2 bg-white dark:bg-dark rounded-xl shadow-md p-6">
+                        <h2 class="text-xl font-bold mb-4 dark:text-light">Send Message</h2>
+                        <form id="messageForm">
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipient</label>
+                                <div class="flex">
+                                    <select id="recipientType" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                                        <option value="email">Email</option>
+                                        <option value="phone">Phone</option>
+                                    </select>
+                                    <input type="text" id="recipient" placeholder="Enter email or phone" class="flex-1 px-4 py-2 border-t border-r border-b border-gray-300 dark:border-gray-600 rounded-r-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                                    <div id="recipientSuggestions" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto"></div>
+                                </div>
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject</label>
+                                <input type="text" id="messageSubject" placeholder="Message subject" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                            </div>
+                            <div class="mb-4">
+                                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message</label>
+                                <textarea id="messageContent" rows="5" placeholder="Type your message here..." class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white"></textarea>
+                            </div>
+                            <button type="submit" class="bg-primary-orange hover:bg-primary-red text-white px-6 py-2 rounded-lg transition-all duration-300 flex items-center justify-center w-full">
+                                <i class="fas fa-paper-plane mr-2"></i> Send Message
+                            </button>
+                        </form>
+                    </div>
+                    
+                    <!-- Message History -->
+                    <div class="bg-white dark:bg-dark rounded-xl shadow-md p-6">
+                        <h2 class="text-xl font-bold mb-4 dark:text-light">Message History</h2>
+                        <div class="space-y-4 max-h-96 overflow-y-auto" id="messageHistory">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+    
+    <!-- Add Visitor Modal -->
+    <div id="addVisitorModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="bg-white dark:bg-dark rounded-xl shadow-xl w-full max-w-md mx-4 z-10 fade-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold dark:text-light">Add New Visitor</h3>
+                    <button id="closeAddVisitorModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="addVisitorForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Full Name</label>
+                        <input type="text" id="visitorName" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <input type="email" id="visitorEmail" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Phone</label>
+                        <input type="tel" id="visitorPhone" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Service Type</label>
+                        <select id="visitorService" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                            <option value="">Select a service</option>
+                            <option value="Photography">Photography</option>
+                            <option value="Videography">Videography</option>
+                            <option value="Podcast">Podcast</option>
+                            <option value="Studio Rental">Studio Rental</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Visit Date</label>
+                        <input type="date" id="visitorDate" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Notes</label>
+                        <textarea id="visitorNotes" rows="3" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white"></textarea>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelAddVisitor" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300">Cancel</button>
+                        <button type="submit" class="bg-primary-orange hover:bg-primary-red text-white px-4 py-2 rounded-lg transition-all duration-300">Save Visitor</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Visitor Details Modal -->
+    <div id="visitorDetailsModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="bg-white dark:bg-dark rounded-xl shadow-xl w-full max-w-md mx-4 z-10 fade-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold dark:text-light">Visitor Details</h3>
+                    <button id="closeVisitorDetailsModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div class="space-y-4" id="visitorDetailsContent">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button id="closeDetailsModalBtn" class="bg-primary-orange hover:bg-primary-red text-white px-4 py-2 rounded-lg transition-all duration-300">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Login Modal -->
+    <div id="loginModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+        <div class="absolute inset-0 bg-black bg-opacity-50"></div>
+        <div class="bg-white dark:bg-dark rounded-xl shadow-xl w-full max-w-md mx-4 z-10 fade-in">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-xl font-bold dark:text-light">Admin Login</h3>
+                    <button id="closeLoginModal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <form id="loginForm">
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+                        <input type="email" id="loginEmail" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Password</label>
+                        <input type="password" id="loginPassword" required class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                    </div>
+                    <div class="flex items-center mb-4">
+                        <input type="checkbox" id="rememberMe" class="h-4 w-4 text-primary-orange focus:ring-primary-orange border-gray-300 dark:border-gray-600 rounded">
+                        <label for="rememberMe" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">Remember me</label>
+                    </div>
+                    <div class="flex justify-end space-x-3">
+                        <button type="button" id="cancelLogin" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 transition-all duration-300">Cancel</button>
+                        <button type="submit" class="bg-primary-orange hover:bg-primary-red text-white px-4 py-2 rounded-lg transition-all duration-300">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Alert Notification -->
+    <div id="alertNotification" class="fixed bottom-4 right-4 z-50 hidden">
+        <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center fade-in">
+            <i class="fas fa-check-circle mr-2"></i>
+            <span id="alertMessage">Operation successful!</span>
+            <button id="closeAlert" class="ml-4 text-white hover:text-gray-200">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        // Sample Data
+        const sampleVisitors = [
+            {
+                "fullName": "Michaelle Dorvil",
+                "email": "michaelle@haitianhub.com",
+                "phone": "(305) 555-1234",
+                "serviceType": "Photography",
+                "visitDate": "2025-07-01",
+                "notes": "Needs headshots for LinkedIn",
+                "lastLogin": "2025-07-02T09:15:00",
+                "status": "Active"
+            },
+            {
+                "fullName": "Jean-Paul Alexis",
+                "email": "jeanpaul@haitianhub.com",
+                "phone": "(786) 111-7890",
+                "serviceType": "Podcast",
+                "visitDate": "2025-06-28",
+                "notes": "Bringing guest speaker",
+                "lastLogin": "2025-07-01T17:42:00",
+                "status": "Active"
+            },
+            {
+                "fullName": "Kettia Lormeus",
+                "email": "kettia@haitianhub.com",
+                "phone": "(754) 999-2020",
+                "serviceType": "Videography",
+                "visitDate": "2025-06-25",
+                "notes": "",
+                "lastLogin": "2025-06-30T11:25:00",
+                "status": "Inactive"
+            },
+            {
+                "fullName": "David Saint-Fleur",
+                "email": "david@haitianhub.com",
+                "phone": "(305) 333-4433",
+                "serviceType": "Studio Rental",
+                "visitDate": "2025-07-02",
+                "notes": "Needs 3 hours slot",
+                "lastLogin": "2025-07-02T08:00:00",
+                "status": "Active"
+            },
+            {
+                "fullName": "Nadège Jean-Louis",
+                "email": "nadege@haitianhub.com",
+                "phone": "(754) 888-7676",
+                "serviceType": "Photography",
+                "visitDate": "2025-06-29",
+                "notes": "Wants black & white session",
+                "lastLogin": "2025-07-01T19:30:00",
+                "status": "Inactive"
+            }
+        ];
+        
+        // Initialize localStorage data
+        function initializeData() {
+            if (!localStorage.getItem('visitors')) {
+                localStorage.setItem('visitors', JSON.stringify(sampleVisitors));
+            }
+            
+            if (!localStorage.getItem('loginLogs')) {
+                const loginLogs = sampleVisitors.map(visitor => ({
+                    email: visitor.email,
+                    loginDate: new Date(visitor.lastLogin).toISOString().split('T')[0],
+                    loginTime: new Date(visitor.lastLogin).toLocaleTimeString(),
+                    status: visitor.status
+                }));
+                localStorage.setItem('loginLogs', JSON.stringify(loginLogs));
+            }
+            
+            if (!localStorage.getItem('messages')) {
+                localStorage.setItem('messages', JSON.stringify([]));
+            }
+            
+            if (!localStorage.getItem('darkMode')) {
+                localStorage.setItem('darkMode', 'false');
+            }
+            
+            if (!localStorage.getItem('loggedIn')) {
+                localStorage.setItem('loggedIn', 'false');
+            }
+        }
+        
+        // DOM Elements
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const sidebar = document.querySelector('.sidebar');
+        const overlay = document.querySelector('.overlay');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const loginModal = document.getElementById('loginModal');
+        const closeLoginModal = document.getElementById('closeLoginModal');
+        const cancelLogin = document.getElementById('cancelLogin');
+        const loginForm = document.getElementById('loginForm');
+        const loggedInUser = document.getElementById('loggedInUser');
+        const addVisitorBtn = document.getElementById('addVisitorBtn');
+        const addVisitorModal = document.getElementById('addVisitorModal');
+        const closeAddVisitorModal = document.getElementById('closeAddVisitorModal');
+        const cancelAddVisitor = document.getElementById('cancelAddVisitor');
+        const addVisitorForm = document.getElementById('addVisitorForm');
+        const visitorDetailsModal = document.getElementById('visitorDetailsModal');
+        const closeVisitorDetailsModal = document.getElementById('closeVisitorDetailsModal');
+        const closeDetailsModalBtn = document.getElementById('closeDetailsModalBtn');
+        const visitorDetailsContent = document.getElementById('visitorDetailsContent');
+        const visitorSearch = document.getElementById('visitorSearch');
+        const serviceFilter = document.getElementById('serviceFilter');
+        const dateFilter = document.getElementById('dateFilter');
+        const visitorsTable = document.getElementById('visitorsTable');
+        const recentVisitorsTable = document.getElementById('recentVisitorsTable');
+        const visitorPrevBtn = document.getElementById('visitorPrevBtn');
+        const visitorNextBtn = document.getElementById('visitorNextBtn');
+        const visitorStart = document.getElementById('visitorStart');
+        const visitorEnd = document.getElementById('visitorEnd');
+        const visitorTotal = document.getElementById('visitorTotal');
+        const exportCSVBtn = document.getElementById('exportCSVBtn');
+        const exportJSONBtn = document.getElementById('exportJSONBtn');
+        const loginTable = document.getElementById('loginTable');
+        const loginPrevBtn = document.getElementById('loginPrevBtn');
+        const loginNextBtn = document.getElementById('loginNextBtn');
+        const loginStart = document.getElementById('loginStart');
+        const loginEnd = document.getElementById('loginEnd');
+        const loginTotal = document.getElementById('loginTotal');
+        const totalVisitors = document.getElementById('totalVisitors');
+        const weeklyVisitors = document.getElementById('weeklyVisitors');
+        const todayLogins = document.getElementById('todayLogins');
+        const activeUsers = document.getElementById('activeUsers');
+        const totalLogins = document.getElementById('totalLogins');
+        const activeSessions = document.getElementById('activeSessions');
+        const lastLogin = document.getElementById('lastLogin');
+        const messageForm = document.getElementById('messageForm');
+        const messageHistory = document.getElementById('messageHistory');
+        const alertNotification = document.getElementById('alertNotification');
+        const alertMessage = document.getElementById('alertMessage');
+        const closeAlert = document.getElementById('closeAlert');
+        
+        // Variables
+        let currentVisitorPage = 1;
+        let currentLoginPage = 1;
+        const itemsPerPage = 5;
+        let filteredVisitors = [];
+        let filteredLogins = [];
+        
+        // Initialize the dashboard
+        function initDashboard() {
+            initializeData();
+            checkDarkMode();
+            checkLoginStatus();
+            loadVisitors();
+            loadRecentVisitors();
+            loadLoginLogs();
+            updateStats();
+            loadMessageHistory();
+            
+            // Set today's date as default in date filter
+            const today = new Date().toISOString().split('T')[0];
+            dateFilter.value = today;
+        }
+        
+        // Dark Mode Toggle
+        function checkDarkMode() {
+            const darkMode = localStorage.getItem('darkMode') === 'true';
+            document.documentElement.classList.toggle('dark', darkMode);
+            darkModeToggle.checked = darkMode;
+        }
+        
+        darkModeToggle.addEventListener('change', function() {
+            const darkMode = this.checked;
+            document.documentElement.classList.toggle('dark', darkMode);
+            localStorage.setItem('darkMode', darkMode.toString());
+        });
+        
+        // Mobile Menu Toggle
+        mobileMenuBtn.addEventListener('click', function() {
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('open');
+        });
+        
+        overlay.addEventListener('click', function() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('open');
+        });
+        
+        // Login/Logout Functionality
+        function checkLoginStatus() {
+            const loggedIn = localStorage.getItem('loggedIn') === 'true';
+            if (loggedIn) {
+                logoutBtn.style.display = 'block';
+                loggedInUser.textContent = localStorage.getItem('username') || 'Admin';
+            } else {
+                logoutBtn.style.display = 'none';
+                loginModal.classList.remove('hidden');
+            }
+        }
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            // Simple validation (in a real app, this would be server-side)
+            if (email && password) {
+                localStorage.setItem('loggedIn', 'true');
+                localStorage.setItem('username', email.split('@')[0]);
+                
+                // Add login log
+                const now = new Date();
+                const loginLogs = JSON.parse(localStorage.getItem('loginLogs') || '[]');
+                loginLogs.push({
+                    email: email,
+                    loginDate: now.toISOString().split('T')[0],
+                    loginTime: now.toLocaleTimeString(),
+                    status: 'Active'
+                });
+                localStorage.setItem('loginLogs', JSON.stringify(loginLogs));
+                
+                loginModal.classList.add('hidden');
+                checkLoginStatus();
+                loadLoginLogs();
+                updateStats();
+                showAlert('Login successful!');
+            } else {
+                showAlert('Please enter both email and password', 'error');
+            }
+        });
+        
+        logoutBtn.addEventListener('click', function() {
+            localStorage.setItem('loggedIn', 'false');
+            checkLoginStatus();
+            loginModal.classList.remove('hidden');
+            showAlert('Logged out successfully');
+        });
+        
+        closeLoginModal.addEventListener('click', function() {
+            loginModal.classList.add('hidden');
+        });
+        
+        cancelLogin.addEventListener('click', function() {
+            loginModal.classList.add('hidden');
+        });
+        
+        // Visitor Management
+        function loadVisitors() {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            filteredVisitors = [...visitors];
+            renderVisitorsTable();
+        }
+        
+        function loadRecentVisitors() {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            // Sort by most recent visit date
+            const sortedVisitors = [...visitors].sort((a, b) => 
+                new Date(b.visitDate) - new Date(a.visitDate)
+            ).slice(0, 5);
+            
+            recentVisitorsTable.innerHTML = '';
+            sortedVisitors.forEach(visitor => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 dark:hover:bg-gray-800';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-orange bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-user text-primary-orange"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium dark:text-light">${visitor.fullName}</div>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">${visitor.email}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${visitor.serviceType}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${formatDate(visitor.visitDate)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${visitor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${visitor.status}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-primary-orange hover:text-primary-red view-details" data-id="${visitor.email}">View Details</button>
+                    </td>
+                `;
+                recentVisitorsTable.appendChild(row);
+            });
+            
+            // Add event listeners to view details buttons
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const email = this.getAttribute('data-id');
+                    showVisitorDetails(email);
+                });
+            });
+        }
+        
+        function renderVisitorsTable() {
+            const startIndex = (currentVisitorPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedVisitors = filteredVisitors.slice(startIndex, endIndex);
+            
+            visitorsTable.innerHTML = '';
+            paginatedVisitors.forEach(visitor => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 dark:hover:bg-gray-800';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10 rounded-full bg-primary-orange bg-opacity-20 flex items-center justify-center">
+                                <i class="fas fa-user text-primary-orange"></i>
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium dark:text-light">${visitor.fullName}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${visitor.email}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${visitor.phone}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${visitor.serviceType}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${formatDate(visitor.visitDate)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button class="text-primary-orange hover:text-primary-red view-details" data-id="${visitor.email}">View Details</button>
+                    </td>
+                `;
+                visitorsTable.appendChild(row);
+            });
+            
+            // Update pagination info
+            visitorStart.textContent = startIndex + 1;
+            visitorEnd.textContent = Math.min(endIndex, filteredVisitors.length);
+            visitorTotal.textContent = filteredVisitors.length;
+            
+            // Update pagination buttons
+            visitorPrevBtn.disabled = currentVisitorPage === 1;
+            visitorNextBtn.disabled = endIndex >= filteredVisitors.length;
+            
+            // Add event listeners to view details buttons
+            document.querySelectorAll('.view-details').forEach(button => {
+                button.addEventListener('click', function() {
+                    const email = this.getAttribute('data-id');
+                    showVisitorDetails(email);
+                });
+            });
+        }
+        
+        function showVisitorDetails(email) {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const visitor = visitors.find(v => v.email === email);
+            
+            if (visitor) {
+                visitorDetailsContent.innerHTML = `
+                    <div class="flex items-center mb-4">
+                        <div class="w-16 h-16 rounded-full bg-primary-orange bg-opacity-20 flex items-center justify-center mr-4">
+                            <i class="fas fa-user text-primary-orange text-2xl"></i>
+                        </div>
+                        <div>
+                            <h4 class="text-lg font-bold dark:text-light">${visitor.fullName}</h4>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">${visitor.email}</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Phone:</span>
+                            <span class="dark:text-light">${visitor.phone}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Service:</span>
+                            <span class="dark:text-light">${visitor.serviceType}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Visit Date:</span>
+                            <span class="dark:text-light">${formatDate(visitor.visitDate)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Last Login:</span>
+                            <span class="dark:text-light">${formatDateTime(visitor.lastLogin)}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500 dark:text-gray-400">Status:</span>
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${visitor.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                ${visitor.status}
+                            </span>
+                        </div>
+                        <div class="pt-4">
+                            <h5 class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-1">Notes:</h5>
+                            <p class="text-sm dark:text-light">${visitor.notes || 'No notes available'}</p>
+                        </div>
+                    </div>
+                `;
+                visitorDetailsModal.classList.remove('hidden');
+            }
+        }
+        
+        // Add Visitor Modal
+        addVisitorBtn.addEventListener('click', function() {
+            addVisitorModal.classList.remove('hidden');
+        });
+        
+        closeAddVisitorModal.addEventListener('click', function() {
+            addVisitorModal.classList.add('hidden');
+        });
+        
+        cancelAddVisitor.addEventListener('click', function() {
+            addVisitorModal.classList.add('hidden');
+        });
+        
+        addVisitorForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const newVisitor = {
+                fullName: document.getElementById('visitorName').value,
+                email: document.getElementById('visitorEmail').value,
+                phone: document.getElementById('visitorPhone').value,
+                serviceType: document.getElementById('visitorService').value,
+                visitDate: document.getElementById('visitorDate').value,
+                notes: document.getElementById('visitorNotes').value,
+                lastLogin: new Date().toISOString(),
+                status: 'Active'
+            };
+            
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            visitors.push(newVisitor);
+            localStorage.setItem('visitors', JSON.stringify(visitors));
+            
+            // Add login log
+            const now = new Date();
+            const loginLogs = JSON.parse(localStorage.getItem('loginLogs') || '[]');
+            loginLogs.push({
+                email: newVisitor.email,
+                loginDate: now.toISOString().split('T')[0],
+                loginTime: now.toLocaleTimeString(),
+                status: 'Active'
+            });
+            localStorage.setItem('loginLogs', JSON.stringify(loginLogs));
+            
+            addVisitorModal.classList.add('hidden');
+            addVisitorForm.reset();
+            loadVisitors();
+            loadRecentVisitors();
+            loadLoginLogs();
+            updateStats();
+            showAlert('Visitor added successfully!');
+        });
+        
+        // Visitor Details Modal
+        closeVisitorDetailsModal.addEventListener('click', function() {
+            visitorDetailsModal.classList.add('hidden');
+        });
+        
+        closeDetailsModalBtn.addEventListener('click', function() {
+            visitorDetailsModal.classList.add('hidden');
+        });
+        
+        // Filter Visitors
+        visitorSearch.addEventListener('input', function() {
+            filterVisitors();
+        });
+        
+        serviceFilter.addEventListener('change', function() {
+            filterVisitors();
+        });
+        
+        dateFilter.addEventListener('change', function() {
+            filterVisitors();
+        });
+        
+        function filterVisitors() {
+            const searchTerm = visitorSearch.value.toLowerCase();
+            const serviceFilterValue = serviceFilter.value;
+            const dateFilterValue = dateFilter.value;
+            
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            
+            filteredVisitors = visitors.filter(visitor => {
+                const matchesSearch = 
+                    visitor.fullName.toLowerCase().includes(searchTerm) ||
+                    visitor.email.toLowerCase().includes(searchTerm) ||
+                    visitor.phone.toLowerCase().includes(searchTerm);
+                
+                const matchesService = serviceFilterValue ? visitor.serviceType === serviceFilterValue : true;
+                const matchesDate = dateFilterValue ? visitor.visitDate === dateFilterValue : true;
+                
+                return matchesSearch && matchesService && matchesDate;
+            });
+            
+            currentVisitorPage = 1;
+            renderVisitorsTable();
+        }
+        
+        // Pagination
+        visitorPrevBtn.addEventListener('click', function() {
+            if (currentVisitorPage > 1) {
+                currentVisitorPage--;
+                renderVisitorsTable();
+            }
+        });
+        
+        visitorNextBtn.addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredVisitors.length / itemsPerPage);
+            if (currentVisitorPage < totalPages) {
+                currentVisitorPage++;
+                renderVisitorsTable();
+            }
+        });
+        
+        // Export Data
+        exportCSVBtn.addEventListener('click', function() {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const headers = ['Full Name', 'Email', 'Phone', 'Service Type', 'Visit Date', 'Notes', 'Last Login', 'Status'];
+            const csvRows = [];
+            
+            // Add headers
+            csvRows.push(headers.join(','));
+            
+            // Add data rows
+            visitors.forEach(visitor => {
+                const row = [
+                    `"${visitor.fullName}"`,
+                    `"${visitor.email}"`,
+                    `"${visitor.phone}"`,
+                    `"${visitor.serviceType}"`,
+                    `"${visitor.visitDate}"`,
+                    `"${visitor.notes || ''}"`,
+                    `"${visitor.lastLogin}"`,
+                    `"${visitor.status}"`
+                ];
+                csvRows.push(row.join(','));
+            });
+            
+            // Create CSV file
+            const csvContent = csvRows.join('\n');
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'haitian_hub_visitors.csv');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showAlert('CSV exported successfully!');
+        });
+        
+        exportJSONBtn.addEventListener('click', function() {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const jsonContent = JSON.stringify(visitors, null, 2);
+            const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', 'haitian_hub_visitors.json');
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            showAlert('JSON exported successfully!');
+        });
+        
+        // Login Tracking
+        function loadLoginLogs() {
+            const loginLogs = JSON.parse(localStorage.getItem('loginLogs') || '[]');
+            filteredLogins = [...loginLogs];
+            renderLoginTable();
+        }
+        
+        function renderLoginTable() {
+            const startIndex = (currentLoginPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const paginatedLogins = filteredLogins.slice(startIndex, endIndex);
+            
+            loginTable.innerHTML = '';
+            paginatedLogins.forEach(log => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-gray-50 dark:hover:bg-gray-800';
+                row.innerHTML = `
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${log.email}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${formatDate(log.loginDate)}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm dark:text-light">${log.loginTime}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${log.status === 'Active' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                            ${log.status}
+                        </span>
+                    </td>
+                `;
+                loginTable.appendChild(row);
+            });
+            
+            // Update pagination info
+            loginStart.textContent = startIndex + 1;
+            loginEnd.textContent = Math.min(endIndex, filteredLogins.length);
+            loginTotal.textContent = filteredLogins.length;
+            
+            // Update pagination buttons
+            loginPrevBtn.disabled = currentLoginPage === 1;
+            loginNextBtn.disabled = endIndex >= filteredLogins.length;
+        }
+        
+        loginPrevBtn.addEventListener('click', function() {
+            if (currentLoginPage > 1) {
+                currentLoginPage--;
+                renderLoginTable();
+            }
+        });
+        
+        loginNextBtn.addEventListener('click', function() {
+            const totalPages = Math.ceil(filteredLogins.length / itemsPerPage);
+            if (currentLoginPage < totalPages) {
+                currentLoginPage++;
+                renderLoginTable();
+            }
+        });
+        
+        // Dashboard Stats
+        function updateStats() {
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const loginLogs = JSON.parse(localStorage.getItem('loginLogs') || '[]');
+            
+            // Total visitors
+            totalVisitors.textContent = visitors.length;
+            
+            // Visitors this week
+            const oneWeekAgo = new Date();
+            oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+            const weeklyVisitorsCount = visitors.filter(visitor => 
+                new Date(visitor.visitDate) >= oneWeekAgo
+            ).length;
+            weeklyVisitors.textContent = weeklyVisitorsCount;
+            
+            // Logins today
+            const today = new Date().toISOString().split('T')[0];
+            const todayLoginsCount = loginLogs.filter(log => 
+                log.loginDate === today
+            ).length;
+            todayLogins.textContent = todayLoginsCount;
+            
+            // Active users
+            const activeUsersCount = visitors.filter(visitor => 
+                visitor.status === 'Active'
+            ).length;
+            activeUsers.textContent = activeUsersCount;
+            
+            // Login stats
+            totalLogins.textContent = loginLogs.length;
+            
+            const activeSessionsCount = loginLogs.filter(log => 
+                log.status === 'Active'
+            ).length;
+            activeSessions.textContent = activeSessionsCount;
+            
+            if (loginLogs.length > 0) {
+                const lastLoginLog = loginLogs[loginLogs.length - 1];
+                lastLogin.textContent = `${formatDate(lastLoginLog.loginDate)} ${lastLoginLog.loginTime}`;
+            } else {
+                lastLogin.textContent = '-';
+            }
+        }
+        
+        // Messaging Center
+        messageForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const recipientType = document.getElementById('recipientType').value;
+            const recipient = document.getElementById('recipient').value;
+            const subject = document.getElementById('messageSubject').value;
+            const content = document.getElementById('messageContent').value;
+            
+            if (!recipient || !subject || !content) {
+                showAlert('Please fill all fields', 'error');
+                return;
+            }
+            
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            const newMessage = {
+                id: Date.now(),
+                recipientType,
+                recipient,
+                subject,
+                content,
+                timestamp: new Date().toISOString(),
+                status: 'Sent'
+            };
+            
+            messages.push(newMessage);
+            localStorage.setItem('messages', JSON.stringify(messages));
+            
+            messageForm.reset();
+            loadMessageHistory();
+            showAlert('Message sent successfully!');
+        });
+        
+        function loadMessageHistory() {
+            const messages = JSON.parse(localStorage.getItem('messages') || '[]');
+            // Sort by most recent first
+            const sortedMessages = [...messages].sort((a, b) => 
+                new Date(b.timestamp) - new Date(a.timestamp)
+            );
+            
+            messageHistory.innerHTML = '';
+            sortedMessages.forEach(message => {
+                const messageDiv = document.createElement('div');
+                messageDiv.className = 'bg-gray-50 dark:bg-gray-800 rounded-lg p-4';
+                messageDiv.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <h4 class="font-medium dark:text-light">${message.subject}</h4>
+                            <p class="text-xs text-gray-500 dark:text-gray-400">To: ${message.recipient}</p>
+                        </div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400">${formatDateTime(message.timestamp)}</span>
+                    </div>
+                    <p class="text-sm dark:text-light">${message.content}</p>
+                `;
+                messageHistory.appendChild(messageDiv);
+            });
+        }
+        
+        // Alert Notification
+        function showAlert(message, type = 'success') {
+            alertMessage.textContent = message;
+            alertNotification.className = `fixed bottom-4 right-4 z-50`;
+            
+            if (type === 'success') {
+                alertNotification.querySelector('div').className = 'bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center fade-in';
+            } else {
+                alertNotification.querySelector('div').className = 'bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center fade-in';
+            }
+            
+            alertNotification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                alertNotification.classList.add('hidden');
+            }, 5000);
+        }
+        
+        closeAlert.addEventListener('click', function() {
+            alertNotification.classList.add('hidden');
+        });
+        
+        // Helper Functions
+        function formatDate(dateString) {
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            return new Date(dateString).toLocaleDateString(undefined, options);
+        }
+        
+        function formatDateTime(dateTimeString) {
+            const options = { 
+                year: 'numeric', 
+                month: 'short', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            return new Date(dateTimeString).toLocaleDateString(undefined, options);
+        }
+        
+        // Recipient suggestions
+        const recipientInput = document.getElementById('recipient');
+        const recipientSuggestions = document.getElementById('recipientSuggestions');
+        
+        recipientInput.addEventListener('input', function() {
+            const searchTerm = this.value.toLowerCase();
+            if (searchTerm.length < 2) {
+                recipientSuggestions.classList.add('hidden');
+                return;
+            }
+            
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
+            const suggestions = visitors.filter(visitor => 
+                visitor.email.toLowerCase().includes(searchTerm) || 
+                visitor.phone.toLowerCase().includes(searchTerm)
+            );
+            
+            if (suggestions.length === 0) {
+                recipientSuggestions.classList.add('hidden');
+                return;
+            }
+            
+            recipientSuggestions.innerHTML = '';
+            suggestions.forEach(visitor => {
+                const suggestion = document.createElement('div');
+                suggestion.className = 'suggestion-item dark:text-light';
+                suggestion.textContent = document.getElementById('recipientType').value === 'email' ? 
+                    visitor.email : visitor.phone;
+                suggestion.addEventListener('click', function() {
+                    recipientInput.value = this.textContent;
+                    recipientSuggestions.classList.add('hidden');
+                });
+                recipientSuggestions.appendChild(suggestion);
+            });
+            
+            recipientSuggestions.classList.remove('hidden');
+        });
+        
+        // Hide suggestions when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!recipientInput.contains(e.target) && !recipientSuggestions.contains(e.target)) {
+                recipientSuggestions.classList.add('hidden');
+            }
+        });
+
+        // Update suggestions when recipient type changes
+        document.getElementById('recipientType').addEventListener('change', function() {
+            if (recipientInput.value) {
+                recipientInput.dispatchEvent(new Event('input'));
+            }
+        });
+
+        // Initialize the dashboard when the page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
