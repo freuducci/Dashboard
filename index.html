@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -602,15 +603,27 @@
                 </div>
                 <form id="messageForm">
                     <div class="mb-4">
-                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipient</label>
-                        <div class="flex">
-                            <select id="recipientType" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
-                                <option value="email">Email</option>
-                                <option value="phone">Phone</option>
-                            </select>
-                            <input type="text" id="recipient" placeholder="Enter email or phone" class="flex-1 px-4 py-2 border-t border-r border-b border-gray-300 dark:border-gray-600 rounded-r-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
-                            <div id="recipientSuggestions" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto"></div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Message Type</label>
+                        <select id="messageType" class="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                            <option value="single">Send to individual</option>
+                            <option value="broadcast">Broadcast to all users</option>
+                        </select>
+                    </div>
+                    <div id="singleRecipientSection">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Recipient</label>
+                            <div class="flex">
+                                <select id="recipientType" class="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-l-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                                    <option value="email">Email</option>
+                                    <option value="phone">Phone</option>
+                                </select>
+                                <input type="text" id="recipient" placeholder="Enter email or phone" class="flex-1 px-4 py-2 border-t border-r border-b border-gray-300 dark:border-gray-600 rounded-r-lg focus:ring-primary-orange focus:border-primary-orange dark:bg-gray-700 dark:text-white">
+                                <div id="recipientSuggestions" class="hidden absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 shadow-lg rounded-md border border-gray-200 dark:border-gray-700 max-h-60 overflow-auto"></div>
+                            </div>
                         </div>
+                    </div>
+                    <div id="broadcastInfo" class="hidden mb-4 p-3 bg-blue-50 dark:bg-blue-900 rounded-lg">
+                        <p class="text-sm text-blue-700 dark:text-blue-200">This message will be sent to all registered users.</p>
                     </div>
                     <div class="mb-4">
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Subject</label>
@@ -1420,36 +1433,78 @@
         }
         
         // Messaging Center
+        // Toggle between single and broadcast message
+        document.getElementById('messageType').addEventListener('change', function() {
+            const messageType = this.value;
+            if (messageType === 'broadcast') {
+                document.getElementById('singleRecipientSection').classList.add('hidden');
+                document.getElementById('broadcastInfo').classList.remove('hidden');
+            } else {
+                document.getElementById('singleRecipientSection').classList.remove('hidden');
+                document.getElementById('broadcastInfo').classList.add('hidden');
+            }
+        });
+
         messageForm.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const recipientType = document.getElementById('recipientType').value;
-            const recipient = document.getElementById('recipient').value;
+            const messageType = document.getElementById('messageType').value;
             const subject = document.getElementById('messageSubject').value;
             const content = document.getElementById('messageContent').value;
             
-            if (!recipient || !subject || !content) {
+            if (!subject || !content) {
                 showAlert('Please fill all fields', 'error');
                 return;
             }
             
             const messages = JSON.parse(localStorage.getItem('messages') || '[]');
-            const newMessage = {
-                id: Date.now(),
-                recipientType,
-                recipient,
-                subject,
-                content,
-                timestamp: new Date().toISOString(),
-                status: 'Sent'
-            };
+            const visitors = JSON.parse(localStorage.getItem('visitors') || '[]');
             
-            messages.push(newMessage);
+            if (messageType === 'broadcast') {
+                // Send to all users
+                visitors.forEach(visitor => {
+                    const newMessage = {
+                        id: Date.now(),
+                        recipientType: 'email',
+                        recipient: visitor.email,
+                        subject: subject,
+                        content: content,
+                        timestamp: new Date().toISOString(),
+                        status: 'Sent',
+                        isBroadcast: true
+                    };
+                    messages.push(newMessage);
+                });
+                
+                showAlert(`Message broadcasted to ${visitors.length} users successfully!`);
+            } else {
+                // Send to single recipient
+                const recipientType = document.getElementById('recipientType').value;
+                const recipient = document.getElementById('recipient').value;
+                
+                if (!recipient) {
+                    showAlert('Please select a recipient', 'error');
+                    return;
+                }
+                
+                const newMessage = {
+                    id: Date.now(),
+                    recipientType,
+                    recipient,
+                    subject,
+                    content,
+                    timestamp: new Date().toISOString(),
+                    status: 'Sent',
+                    isBroadcast: false
+                };
+                messages.push(newMessage);
+                
+                showAlert('Message sent successfully!');
+            }
+            
             localStorage.setItem('messages', JSON.stringify(messages));
-            
             messageForm.reset();
             loadMessageHistory();
-            showAlert('Message sent successfully!');
         });
         
         function loadMessageHistory() {
